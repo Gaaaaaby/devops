@@ -1,24 +1,19 @@
-from httpx import AsyncClient
-
 import pytest
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/..")
-
+from httpx import AsyncClient, ASGITransport
 from main import app
-
 
 @pytest.mark.asyncio
 async def test_root_endpoint():
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         response = await ac.get("/")
     assert response.status_code == 200
-    assert response.json() == {"message": "Hola DevOps"}
+    assert response.json() == {"mensaje": "Hola DevOps, todo gratis :)"}
 
 @pytest.mark.asyncio
 async def test_health_endpoint():
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         response = await ac.get("/health")
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
